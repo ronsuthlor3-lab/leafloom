@@ -1,0 +1,207 @@
+<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>LeafLoom — เครื่องมือ PDF ในเบราว์เซอร์</title>
+  <meta name="description" content="รวม แยก จัดหน้า และแปลงไฟล์ PDF ในเบราว์เซอร์ของคุณเอง ไฟล์ไม่ถูกอัปโหลดไปที่ใด">
+  <link rel="icon" href="assets/logo.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="top">
+    <img src="assets/logo.svg" alt="" width="40" height="40">
+    <div>
+      <h1>LeafLoom</h1>
+      <p class="tagline">ทอหน้าเอกสารเข้าด้วยกัน — ทุกอย่างทำในเครื่องคุณ ไม่มีไฟล์ถูกส่งออกไป</p>
+    </div>
+  </header>
+
+  <nav class="tabs" role="tablist" aria-label="เครื่องมือ">
+    <button role="tab" id="tab-merge" aria-controls="panel-merge" data-tool="merge">รวมไฟล์</button>
+    <button role="tab" id="tab-organize" aria-controls="panel-organize" data-tool="organize">จัดหน้า</button>
+    <button role="tab" id="tab-split" aria-controls="panel-split" data-tool="split">แยก / ดึงหน้า</button>
+    <button role="tab" id="tab-img2pdf" aria-controls="panel-img2pdf" data-tool="img2pdf">รูป → PDF</button>
+    <button role="tab" id="tab-pdf2img" aria-controls="panel-pdf2img" data-tool="pdf2img">PDF → รูป</button>
+    <button role="tab" id="tab-stamp" aria-controls="panel-stamp" data-tool="stamp">เลขหน้า &amp; ลายน้ำ</button>
+  </nav>
+
+  <main>
+    <!-- F-01 -->
+    <section class="panel" role="tabpanel" id="panel-merge" aria-labelledby="tab-merge" hidden>
+      <h2>รวม PDF หลายไฟล์เป็นไฟล์เดียว</h2>
+      <div class="drop" data-input="in-merge">
+        <p>ลากไฟล์ PDF มาวางตรงนี้ หรือ</p>
+        <button type="button" class="btn" data-pick="in-merge">เลือกไฟล์ PDF</button>
+        <input type="file" id="in-merge" accept="application/pdf,.pdf" multiple hidden>
+      </div>
+      <ol class="filelist" id="merge-list" aria-label="ลำดับไฟล์ที่จะรวม"></ol>
+      <div class="actions">
+        <button type="button" class="btn primary" id="merge-go" disabled>รวมแล้วดาวน์โหลด</button>
+        <button type="button" class="btn ghost" id="merge-clear">ล้างรายการ</button>
+      </div>
+    </section>
+
+    <!-- F-02 -->
+    <section class="panel" role="tabpanel" id="panel-organize" aria-labelledby="tab-organize" hidden>
+      <h2>หมุน ลบ และสลับลำดับหน้า</h2>
+      <div class="drop" data-input="in-organize">
+        <p>ลากไฟล์ PDF หนึ่งไฟล์มาวาง หรือ</p>
+        <button type="button" class="btn" data-pick="in-organize">เลือกไฟล์ PDF</button>
+        <input type="file" id="in-organize" accept="application/pdf,.pdf" hidden>
+      </div>
+      <p class="hint" id="org-info"></p>
+      <ul class="pagegrid" id="org-grid" aria-label="หน้าในเอกสาร"></ul>
+      <div class="actions">
+        <button type="button" class="btn primary" id="org-go" disabled>บันทึกเป็นไฟล์ใหม่</button>
+        <button type="button" class="btn ghost" id="org-reset" disabled>เริ่มจัดใหม่</button>
+      </div>
+    </section>
+
+    <!-- F-03 -->
+    <section class="panel" role="tabpanel" id="panel-split" aria-labelledby="tab-split" hidden>
+      <h2>ดึงเฉพาะหน้าที่ต้องการ หรือแยกทุกหน้า</h2>
+      <div class="drop" data-input="in-split">
+        <p>ลากไฟล์ PDF หนึ่งไฟล์มาวาง หรือ</p>
+        <button type="button" class="btn" data-pick="in-split">เลือกไฟล์ PDF</button>
+        <input type="file" id="in-split" accept="application/pdf,.pdf" hidden>
+      </div>
+      <p class="hint" id="split-info"></p>
+      <fieldset class="opts">
+        <legend>วิธีแยก</legend>
+        <label><input type="radio" name="split-mode" value="range" checked> ดึงหน้าตามช่วงเป็นไฟล์เดียว</label>
+        <label class="field">ช่วงหน้า
+          <input type="text" id="split-range" placeholder="เช่น 1-3, 5, 8-" autocomplete="off">
+        </label>
+        <label><input type="radio" name="split-mode" value="each"> แยกทุกหน้า หน้าละไฟล์ (ได้ไฟล์ ZIP)</label>
+      </fieldset>
+      <div class="actions">
+        <button type="button" class="btn primary" id="split-go" disabled>แยกแล้วดาวน์โหลด</button>
+      </div>
+    </section>
+
+    <!-- F-04 -->
+    <section class="panel" role="tabpanel" id="panel-img2pdf" aria-labelledby="tab-img2pdf" hidden>
+      <h2>รวมรูปภาพเป็น PDF หนึ่งรูปต่อหนึ่งหน้า</h2>
+      <div class="drop" data-input="in-img">
+        <p>ลากรูป (JPG, PNG, WebP) มาวาง หรือ</p>
+        <button type="button" class="btn" data-pick="in-img">เลือกรูป</button>
+        <input type="file" id="in-img" accept="image/*" multiple hidden>
+      </div>
+      <ol class="filelist" id="img-list" aria-label="ลำดับรูป"></ol>
+      <fieldset class="opts">
+        <legend>ขนาดหน้า</legend>
+        <label class="field">ขนาด
+          <select id="img-size">
+            <option value="a4auto">A4 (หมุนตามรูป)</option>
+            <option value="a4">A4 แนวตั้ง</option>
+            <option value="fit">เท่าขนาดรูป</option>
+          </select>
+        </label>
+        <label class="field">ขอบกระดาษ
+          <select id="img-margin">
+            <option value="0">ไม่มี</option>
+            <option value="20" selected>แคบ</option>
+            <option value="40">กว้าง</option>
+          </select>
+        </label>
+      </fieldset>
+      <div class="actions">
+        <button type="button" class="btn primary" id="img-go" disabled>สร้าง PDF</button>
+        <button type="button" class="btn ghost" id="img-clear">ล้างรายการ</button>
+      </div>
+    </section>
+
+    <!-- F-05 -->
+    <section class="panel" role="tabpanel" id="panel-pdf2img" aria-labelledby="tab-pdf2img" hidden>
+      <h2>แปลงทุกหน้าของ PDF เป็นไฟล์รูป</h2>
+      <div class="drop" data-input="in-p2i">
+        <p>ลากไฟล์ PDF หนึ่งไฟล์มาวาง หรือ</p>
+        <button type="button" class="btn" data-pick="in-p2i">เลือกไฟล์ PDF</button>
+        <input type="file" id="in-p2i" accept="application/pdf,.pdf" hidden>
+      </div>
+      <p class="hint" id="p2i-info"></p>
+      <fieldset class="opts">
+        <legend>ตัวเลือก</legend>
+        <label class="field">ความละเอียด
+          <select id="p2i-scale">
+            <option value="1">ต่ำ (72 dpi)</option>
+            <option value="2" selected>กลาง (144 dpi)</option>
+            <option value="3">สูง (216 dpi)</option>
+          </select>
+        </label>
+        <label class="field">ชนิดไฟล์
+          <select id="p2i-fmt">
+            <option value="png">PNG</option>
+            <option value="jpeg">JPG</option>
+          </select>
+        </label>
+      </fieldset>
+      <div class="actions">
+        <button type="button" class="btn primary" id="p2i-go" disabled>แปลงแล้วดาวน์โหลด</button>
+      </div>
+    </section>
+
+    <!-- F-06 -->
+    <section class="panel" role="tabpanel" id="panel-stamp" aria-labelledby="tab-stamp" hidden>
+      <h2>ใส่เลขหน้าและลายน้ำ</h2>
+      <div class="drop" data-input="in-stamp">
+        <p>ลากไฟล์ PDF หนึ่งไฟล์มาวาง หรือ</p>
+        <button type="button" class="btn" data-pick="in-stamp">เลือกไฟล์ PDF</button>
+        <input type="file" id="in-stamp" accept="application/pdf,.pdf" hidden>
+      </div>
+      <p class="hint" id="stamp-info"></p>
+      <fieldset class="opts">
+        <legend><label><input type="checkbox" id="num-on" checked> เลขหน้า</label></legend>
+        <label class="field">รูปแบบ
+          <select id="num-fmt">
+            <option value="n">1</option>
+            <option value="n/t">1 / 10</option>
+            <option value="-n-">- 1 -</option>
+          </select>
+        </label>
+        <label class="field">ตำแหน่ง
+          <select id="num-pos">
+            <option value="bc">ล่าง กลาง</option>
+            <option value="br">ล่าง ขวา</option>
+            <option value="tr">บน ขวา</option>
+          </select>
+        </label>
+        <label class="field">เริ่มที่เลข
+          <input type="number" id="num-start" value="1" min="0" step="1">
+        </label>
+      </fieldset>
+      <fieldset class="opts">
+        <legend><label><input type="checkbox" id="wm-on"> ลายน้ำ</label></legend>
+        <label class="field wide">ข้อความ
+          <input type="text" id="wm-text" value="สำเนา — ห้ามเผยแพร่" maxlength="60">
+        </label>
+        <label class="field">ความทึบ
+          <input type="range" id="wm-opacity" min="5" max="60" value="18">
+        </label>
+        <label class="field">มุม
+          <select id="wm-angle">
+            <option value="45">เฉียง 45°</option>
+            <option value="0">แนวนอน</option>
+          </select>
+        </label>
+      </fieldset>
+      <div class="actions">
+        <button type="button" class="btn primary" id="stamp-go" disabled>ประทับแล้วดาวน์โหลด</button>
+      </div>
+    </section>
+
+    <div id="status" class="status" role="status" aria-live="polite"></div>
+  </main>
+
+  <footer class="foot">
+    <p>LeafLoom เป็นซอฟต์แวร์เสรี (MIT) ไฟล์ของคุณถูกประมวลผลในเบราว์เซอร์นี้เท่านั้น
+      · <a href="https://github.com/ronsuthlor3-lab/leafloom">ซอร์สโค้ด</a></p>
+  </footer>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js" crossorigin="anonymous"></script>
+  <script src="app.js"></script>
+</body>
+</html>
